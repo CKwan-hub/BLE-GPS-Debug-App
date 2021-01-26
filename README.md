@@ -4,6 +4,18 @@ Android app for Debug testing BLE Eddystone functionality (Cordova + MithrilJS)
 
 ---
 
+Current (While still only MithrilJS) installation instructions
+
+- Clone
+
+- run "npm install"
+
+- run "npm run start"
+
+- Open via localhost:8000
+
+---
+
 ### TODO:
 
 - Build out components

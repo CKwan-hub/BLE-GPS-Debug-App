@@ -1,5 +1,6 @@
 import m from 'mithril';
-import { Home } from './resources/home'
+import './styles/styles.css';
+import { Main } from './resources/main'
 
 (async () => {
 
@@ -7,7 +8,7 @@ import { Home } from './resources/home'
 
 	m.route.prefix = '';
 	m.route(root, '/', {
-		'/': Home
+		'/': Main
 
 	});
 })();

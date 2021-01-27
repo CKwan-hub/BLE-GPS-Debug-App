@@ -13,8 +13,8 @@
 
   .container {
     border: 2px solid white;
-    width: calc(100vw-4px);
-    height: calc(100vh-4px);
+    width: calc(100vw - 4px);
+    height: calc(100vh - 4px);
     /* padding: 20px 10px 20px 10px; */
     display: grid;
     grid-template-rows: 20px 1fr 1fr;
@@ -23,12 +23,12 @@
   .screen-parent {
     border: 2px blue solid;
     display: grid;
-    height: calc(100%-4px);
-    width: calc(100%-4px);
+    height: calc(100% - 4px);
+    width: calc(100% - 4px);
   }
 
   .panel-container {
-    width: calc(100%-4px);
+    width: calc(100% - 4px);
     border: 2px purple solid;
     height: 400px;
     display: grid;

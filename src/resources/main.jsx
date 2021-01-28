@@ -13,8 +13,7 @@ export const Main = () => {
   return {
     view: (vnode) => {
       return (
-        <div>
-          Template for Mithril!
+        <div class="container">
           {m(Test, { info: testString })}
           {m(Screen, {
             class: 'screen-parent',

@@ -24,6 +24,7 @@
     "@babel/preset-react": "^7.12.1",
     "babel-loader": "^8.1.0",
     "cleave.js": "^1.6.0",
+    "cordova": "^10.0.0",
     "crypto-js": "^4.0.0",
     "css-loader": "^4.3.0",
     "less-loader": "^6.2.0",

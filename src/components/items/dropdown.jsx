@@ -3,7 +3,7 @@ import m from 'mithril';
 
 // Standard dropdown component
 
-export const Drowdown = () => {
+export const Dropdown = () => {
   function getOptions(items, defaultOption, selected) {
     let options = [];
     options.push(<option value="--">{defaultOption}</option>);

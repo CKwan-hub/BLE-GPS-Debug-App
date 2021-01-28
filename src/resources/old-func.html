@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<!-- <head> -->
+	<!-- <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" /> -->
+	<!-- <title>Test 3</title> -->
+
+	<!-- <script>
+	// Redirect console.log when running from Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script> -->
+
+	<!-- <style>
+	body
+	{
+		font-family: sans-serif;
+	} -->
+
+	<!-- h1
+	{
+		margin-right:110px;
+	} -->
+
+	<!-- .evo-image
+	{
+		position:fixed;
+		right:5px;
+		top:5px;
+		width:100px;
+		height:auto;
+		background:white;
+	}
+	</style> -->
+<!-- </head> -->
+
+<body>
+
+	<!-- <img class="evo-image" src="https://cdn.onlinewebfonts.com/svg/img_524962.png" /> -->
+
+	<!-- <h1>Beacon Debug App</h1> -->
+
+	<p id="message">Preparing...</p>
+		<div><b>Beacon List:</b></div>
+    <div id="found-beacons"></div>
+    
+    <div id="debug"><b>Debug List:</b></div>
+    <div id="1"></div>
+    <div id="2"></div>
+    <div id="3"></div>
+    <div id="4"></div>
+    <div id="5"></div>
+    <div id="6">Distance Approx is in Feet <br/> Have had poor performance with BlueCharm </div>
+    <div id="7">Calc is built w/ evothings.eddystone.calculateAccuracy()</div>
+		<div id="8">Tune by +/- from param txPower - Set to "4" (4dBm)</div>
+		<div id="9">41dBm is signal loss occuring >1m, value subbed from txPower</div>
+
+
+	<!--
+	Including cordova.js will automatically include the JavaScript library
+	for Eddystone.
+	-->
+	<script src="cordova.js"></script>
+
+
+	// Application code starts here. The code is wrapped in a
+	// function closure to prevent overwriting global objects.
+	<!-- <script> -->
+	(function()
+	{
+		// Dictionary of beacons.
+		var beacons = {};
+
+		// evothings.scriptsLoaded()
+
+		// Timer that displays list of beacons.
+		var timer = null;
+
+		function onDeviceReady()
+		{
+			// Start tracking beacons!
+			setTimeout(startScan, 500);
+
+			// Timer that refreshes the display.
+			timer = setInterval(updateBeaconList, 500);
+		}
+
+		function onBackButtonDown()
+		{
+			document.getElementById("1").innerHTML = 'SCAN STOPPED';
+			evothings.eddystone.stopScan();
+			navigator.app.exitApp();
+		}
+
+		function startScan()
+		{
+			showMessage('Scan in progress.');
+			evothings.ble.startScan(
+				function(beacon)
+				{
+					// Update beacon data.
+					beacon.timeStamp = Date.now();
+					beacons[beacon.address] = beacon;
+				},
+				function(error)
+				{
+					showMessage('Eddystone scan error: ' + error);
+				});
+		}
+
+		// Map the RSSI value to a value between 1 and 100.
+		function mapBeaconRSSI(rssi)
+		{
+			if (rssi >= 0) return 1; // Unknown RSSI maps to 1.
+			if (rssi < -100) return 100; // Max RSSI
+			return 100 + rssi;
+		}
+
+		function getSortedBeaconList(beacons)
+		{
+			var beaconList = [];
+			for (var key in beacons)
+			{
+				beaconList.push(beacons[key]);
+			}
+			beaconList.sort(function(beacon1, beacon2)
+			{
+				return mapBeaconRSSI(beacon1.rssi) < mapBeaconRSSI(beacon2.rssi);
+			});
+			return beaconList;
+		}
+
+		function updateBeaconList()
+		{
+			removeOldBeacons();
+			displayBeacons();
+		}
+
+		function removeOldBeacons()
+		{
+			var timeNow = Date.now();
+			for (var key in beacons)
+			{
+				// Only show beacons updated during the last 60 seconds.
+				var beacon = beacons[key];
+				if (beacon.timeStamp + 60000 < timeNow)
+				{
+					delete beacons[key];
+				}
+			}
+		}
+
+		function displayBeacons()
+		{
+            document.getElementById("1").innerHTML = '1 in "displayBeacons()"';
+			var html = '';
+			var sortedList = getSortedBeaconList(beacons);
+			for (var i = 0; i < sortedList.length; ++i)
+			{
+				var beacon = sortedList[i];
+				var htmlBeacon =
+					'<p>'
+					+	htmlBeaconName(beacon)
+					// +	htmlBeaconURL(beacon)
+					// +	htmlBeaconNID(beacon)
+					// +	htmlBeaconBID(beacon)
+					// +	htmlBeaconEID(beacon)
+					// +	htmlBeaconVoltage(beacon)
+					// +	htmlBeaconTemperature(beacon)
+					+ htmlBeaconProx(beacon)
+					+	htmlBeaconRSSI(beacon)
+					+ '</p>';
+				html += htmlBeacon
+			}
+			document.querySelector('#found-beacons').innerHTML = html;
+		}
+
+		function htmlBeaconName(beacon)
+		{
+            document.getElementById("2").innerHTML = 'beaconName() firing' + beacon.name;
+			var name = beacon.name || 'no name';
+			return '<strong>' + name + '</strong><br/>';
+		}
+
+	
+		// function htmlBeaconURL(beacon)
+		// {
+    //         document.getElementById("3").innerHTML = '3 "in BeaconURL"' + beacon.url;
+		// 	return beacon.url ?
+		// 		'URL: ' + beacon.url + '<br/>' :  'No Url Found ';
+		// }
+
+		// function htmlBeaconURL(beacon)
+		// {
+		// 	return beacon.url ?
+		// 		'URL: ' + beacon.url + '<br/>' :  '';
+		// }
+
+		// NID = Namespace ID - Idenfies set of beacons - NOT USED
+		// function htmlBeaconNID(beacon)
+		// {
+    //         document.getElementById("4").innerHTML = '4 "in BeaconNID"' + beacon.nid;
+		// 	return beacon.nid ?
+		// 		'NID: ' + uint8ArrayToString(beacon.nid) + '<br/>' :  '';
+		// }
+
+		// BID = Beacon ID - Used in advertising - NOT USED
+		// function htmlBeaconBID(beacon)
+		// {
+    //         document.getElementById("5").innerHTML = '5 "in BeaconBID"' + beacon.bid;
+		// 	return beacon.bid ?
+		// 		'BID: ' + uint8ArrayToString(beacon.bid) + '<br/>' :  '';
+		// }
+
+		// EID = Ephemeral Identifiers - Crypographic identifier - NOT USED
+		// function htmlBeaconEID(beacon)
+		// {
+    //         document.getElementById("6").innerHTML = '6 "in BeaconEID"' + beacon.eid;
+		// 	return beacon.eid ?
+		// 		'EID: ' + uint8ArrayToString(beacon.eid) + '<br/>' :  '';
+		// }
+
+		// Not reporting - FIXME ?
+		function htmlBeaconVoltage(beacon)
+		{
+            document.getElementById("3").innerHTML = 'beaconVoltage() firing' + beacon.voltage;
+			return beacon.voltage ?
+				'Voltage: ' + beacon.voltage + '<br/>' :  '';
+		}
+
+		function htmlBeaconTemperature(beacon)
+		{
+            document.getElementById("4").innerHTML = 'beaconTemp() firing' + beacon.temperature;
+			return beacon.temperature && beacon.temperature != 0x8000 ?
+				'Temperature: ' + beacon.temperature + '<br/>' :  '';
+		}
+
+		function htmlBeaconRSSI(beacon)
+		{
+			return beacon.rssi ?
+				'RSSI: ' + beacon.rssi + '<br/>' :  '';
+		}
+
+		function htmlBeaconProx(beacon)
+		{
+
+			var distance = evothings.eddystone.calculateAccuracy(
+				4, beacon.rssi);
+			var distFeet = (distance * 3.28084)
+			return 'Distance (Ft): ' + distFeet + '<br/>';
+		}
+
+
+		function uint8ArrayToString(uint8Array)
+		{
+			function format(x)
+			{
+				var hex = x.toString(16);
+				return hex.length < 2 ? '0' + hex : hex;
+			}
+
+			var result = '';
+			for (var i = 0; i < uint8Array.length; ++i)
+			{
+				result += format(uint8Array[i]) + ' ';
+			}
+			return result;
+		}
+
+		function showMessage(text)
+		{
+			document.querySelector('#message').innerHTML = text;
+		}
+
+		// This calls onDeviceReady when Cordova has loaded everything.
+		document.addEventListener('deviceready', onDeviceReady, false);
+
+		// Add back button listener (for Android).
+		document.addEventListener('backbutton', onBackButtonDown, false);
+
+	})(); // End of closure.
+	</script>
+
+</body>
+
+</html>
